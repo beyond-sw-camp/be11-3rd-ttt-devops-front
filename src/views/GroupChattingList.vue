@@ -19,7 +19,17 @@
                             prepend-inner-icon="mdi-magnify"
                             @update:model-value="searchRooms"
                             clearable
-                        ></v-text-field>
+                        >
+                            <template v-slot:append>
+                                <v-progress-circular
+                                    v-if="isSearching"
+                                    indeterminate
+                                    color="primary"
+                                    size="20"
+                                    width="2"
+                                ></v-progress-circular>
+                            </template>
+                        </v-text-field>
                     </div>
                     <v-btn 
                         color="primary" 
@@ -141,6 +151,8 @@ export default {
             searchQuery: "",
             totalPages: 1,
             displayedRooms: [],
+            searchTimeout: null,
+            isSearching: false,
         };
     },
     async created() {
@@ -202,36 +214,45 @@ export default {
         resetModal() {
             this.trueOrFalse=false
         },
-        async searchRooms() {
-            try {
-                this.isLoading = true;
-                this.currentPage = 0;
-                this.isLastPage = false;
-                this.displayedRooms = [];
-                
-                let params = {
-                    size: this.pageSize,
-                    page: 0
-                };
-                
-                if (this.searchQuery) {
-                    params.roomName = this.searchQuery;
-                }
-
-                const response = await axios.get(
-                    `${process.env.VUE_APP_API_BASE_URL}/chat/room/group/list`,
-                    { params }
-                );
-                this.displayedRooms = response.data.result.content;
-                this.currentPage = 1;
-                this.isLastPage = response.data.result.last;
-                this.isLoading = false;
-            } catch (error) {
-                console.error('채팅방 검색 실패:', error);
-                this.trueOrFalse = true;
-                this.errorMessage = error.response.data.status_message;
-                this.isLoading = false;
+        searchRooms() {
+            if (this.searchTimeout) {
+                clearTimeout(this.searchTimeout);
             }
+            
+            this.isSearching = true;
+            
+            this.searchTimeout = setTimeout(async () => {
+                try {
+                    this.isLoading = true;
+                    this.currentPage = 0;
+                    this.isLastPage = false;
+                    this.displayedRooms = [];
+                    
+                    let params = {
+                        size: this.pageSize,
+                        page: 0
+                    };
+                    
+                    if (this.searchQuery) {
+                        params.roomName = this.searchQuery;
+                    }
+
+                    const response = await axios.get(
+                        `${process.env.VUE_APP_API_BASE_URL}/chat/room/group/list`,
+                        { params }
+                    );
+                    this.displayedRooms = response.data.result.content;
+                    this.currentPage = 1;
+                    this.isLastPage = response.data.result.last;
+                } catch (error) {
+                    console.error('채팅방 검색 실패:', error);
+                    this.trueOrFalse = true;
+                    this.errorMessage = error.response.data.status_message;
+                } finally {
+                    this.isLoading = false;
+                    this.isSearching = false;
+                }
+            }, 300);
         },
         async prevPage() {
             // 첫 페이지에서 이전 버튼 클릭 시 마지막 페이지로
@@ -541,5 +562,15 @@ export default {
 /* 아이콘 색상 고정 */
 .room-icon .v-icon {
     color: #4f46e5 !important;
+}
+
+.search-wrapper :deep(.v-progress-circular) {
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+/* 부드러운 페이드 효과를 위한 트랜지션 */
+.search-wrapper :deep(.v-progress-circular) {
+    transition: opacity 0.2s ease;
 }
 </style>

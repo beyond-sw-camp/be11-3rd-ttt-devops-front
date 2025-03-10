@@ -16,7 +16,7 @@ export default {
     },
     methods: {
         async sendCodeToBackend(code) {
-            const response = await axios.post("http://localhost:8080/ttt/user/kakao/doLogin", { code })
+            const response = await axios.post(`${process.env.VUE_APP_API_BASE_URL}/user/kakao/doLogin`, { code })
             const kakaoUserInfo = {
                 ...response.data.result,
                 socialType: "KAKAO"

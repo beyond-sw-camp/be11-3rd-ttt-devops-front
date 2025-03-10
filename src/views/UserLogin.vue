@@ -166,7 +166,7 @@ export default {
       },
         googleLoginServer(){
             // 이 요청은 서버를통해 OAuth 제공자(Google)로 이동하므로, 서버로부터 jwt토큰을 받을때 리다이렉트 방식으로 밖에 받을수 없음.
-            window.location.href = "http://localhost:8080/oauth2/authorization/google";
+            window.location.href = `${process.env.VUE_APP_API_BASE_URL}/oauth2/authorization/google`;
         },
         kakaoLogin() {
             const auth_url = `${this.kakaoOAuthUrl}?client_id=${this.kakaoClientId}&redirect_uri=${this.kakaoRedirectUri}&response_type=code`;

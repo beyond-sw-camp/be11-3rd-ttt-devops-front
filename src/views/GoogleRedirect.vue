@@ -13,7 +13,7 @@ export default {
     },
     methods: {
         async sendCodeToBackend(code) {
-            const response = await axios.post("http://localhost:8080/ttt/user/google/doLogin", { code })
+            const response = await axios.post("https://www.tiktaktok.site/user/google/doLogin", { code })
             const googleUserInfo = {
                 ...response.data.result,
                 socialType: "GOOGLE"

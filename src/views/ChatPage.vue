@@ -141,6 +141,9 @@
             </v-card>
         </v-dialog>
     </v-container>
+    <div v-if="!isConnected" class="reconnect-notice">
+    서버와 연결이 끊겼습니다. 재연결 시도 중...
+    </div>
 </template>
 
 <script>
@@ -161,6 +164,10 @@ export default{
             showLeaveModal: false,
             tempRoomId: null,
             isLeaving: false,
+            // 파드 오토스케일링에 따른 문제점 보완
+            reconnectInterval: null, //재연결 시도 주기 저장
+            isConnected: false, // 연결 상태 체크
+            isManuallyDisconnected: false, // 사용자의 의도인지 체크
         }
     },
     computed: {
@@ -207,23 +214,60 @@ export default{
         this.disconnectWebSocket();
     },
     methods: {
-        connectWebsocket(){
-            if(this.stompClient && this.stompClient.connected) return;
-            // sockjs는 websocket을 내장한 향상된 js 라이브러리. http엔드포인트 사용.
-            const sockJs = new SockJS(`https://server.tiktaktok.site/connect`)
+        connectWebsocket() {
+            if (this.stompClient && this.stompClient.connected) return;
+
+            const sockJs = new SockJS(`https://server.tiktaktok.site/connect`);
             this.stompClient = Stomp.over(sockJs);
             this.token = localStorage.getItem("token");
-            this.stompClient.connect({
-                Authorization: `Bearer ${this.token}`
-            },
-                ()=>{
-                    this.stompClient.subscribe(`/topic/${this.roomId}`, (message) => {
-                        const parseMessage = JSON.parse(message.body);
-                        this.messages.push(parseMessage);
-                        this.scrollToBottom();
-                    },{Authorization: `Bearer ${this.token}`})
+
+            this.stompClient.connect(
+                { Authorization: `Bearer ${this.token}` },
+                () => {
+                    console.log("소켓 연결");
+                    this.isConnected = true;
+                    this.isManuallyDisconnected = false; // 성공 시 수동 종료 해제
+
+                    this.stompClient.subscribe(
+                        `/topic/${this.roomId}`,
+                        (message) => {
+                            const parseMessage = JSON.parse(message.body);
+                            this.messages.push(parseMessage);
+                            this.scrollToBottom();
+                        },
+                        { Authorization: `Bearer ${this.token}` }
+                    );
+
+                    // 연결 성공했으니까 재연결 루프 멈추기
+                    if (this.reconnectInterval) {
+                        clearInterval(this.reconnectInterval);
+                        this.reconnectInterval = null;
+                    }
+                },
+                (error) => {
+                    console.error("소켓 연결 실패:", error);
+                    this.isConnected = false;
+                    if (!this.isManuallyDisconnected) {
+                        this.scheduleReconnect(); // 사용자가 끊은게 아니면 재연결
+                    }
                 }
-            )
+            );
+
+            sockJs.onclose = () => {
+                console.warn("소켓 연결 종료됨. 재연결 시도 예정");
+                this.isConnected = false;
+                if (!this.isManuallyDisconnected) {
+                    this.scheduleReconnect(); // 사용자가 끊은게 아니면 재연결
+                }
+            };
+        },
+        scheduleReconnect() {
+            if (!this.reconnectInterval) {
+                this.reconnectInterval = setInterval(() => {
+                    console.log(" 소켓 재연결 시도");
+                    this.connectWebsocket();
+                }, 5000); // 5초마다 재연결
+            }
         },
         sendMessage() {
             if (this.newMessage.trim() === "") return;
@@ -253,19 +297,27 @@ export default{
                 }
             });
         },
-        async disconnectWebSocket(){
-            // 읽음 처리는 채팅방이 존재할 때만 수행
+        async disconnectWebSocket() {
+            if (this.stompClient && this.stompClient.connected) {
+                this.stompClient.disconnect();
+                this.isConnected = false;
+            }
+            // 사용자가 직접 끊은거로 표시
+            this.isManuallyDisconnected = true;
+
+            // 재연결 루프 멈추기
+            if (this.reconnectInterval) {
+                clearInterval(this.reconnectInterval);
+                this.reconnectInterval = null;
+            }
+
+            // 읽음 처리
             if (this.roomId && this.currentChatRoom) {
                 try {
                     await axios.post(`${process.env.VUE_APP_API_BASE_URL}/chat/room/${this.roomId}/read`);
                 } catch (error) {
                     console.log('읽음 처리 실패:', error);
                 }
-            }
-            
-            if(this.stompClient && this.stompClient.connected){
-                this.stompClient.unsubscribe(`/topic/${this.roomId}`);
-                this.stompClient.disconnect();
             }
         },
         async enterChatRoom(roomId) {
@@ -316,22 +368,20 @@ export default{
         },
         async leaveChatRoom(roomId) {
             try {
-                // 웹소켓 연결을 먼저 끊습니다
+                // 소켓 끊기 (정상 종료로 표시됨)
                 if (this.roomId === roomId) {
-                    this.disconnectWebSocket();
+                    await this.disconnectWebSocket();
                 }
-                
-                // 채팅방 나가기 API 호출
+
+                // 나가기 API
                 await axios.delete(`${process.env.VUE_APP_API_BASE_URL}/chat/room/group/${roomId}/leave`);
-                
-                // Vuex store에서 채팅방 제거
+
+                // 채팅방 목록 갱신
                 await this.$store.dispatch('removeChatRoom', roomId);
-                
-                // chatList 업데이트
                 const response = await axios.get(`${process.env.VUE_APP_API_BASE_URL}/chat/my/rooms`);
                 this.$store.dispatch('setChatList', response.data.result);
-                
-                // 현재 보고 있는 채팅방을 나갔다면 첫 번째 채팅방으로 이동
+
+                // 현재 방 나가면 다른 방으로 이동
                 if (this.roomId === roomId) {
                     if (this.chatList.length > 0) {
                         this.enterChatRoom(this.chatList[0].roomId);
@@ -814,6 +864,18 @@ export default{
 
 .chat-rooms::-webkit-scrollbar-thumb:active {
     background: #7934F3;
+}
+
+.reconnect-notice {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: red;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  z-index: 999;
 }
 
 .room-info {

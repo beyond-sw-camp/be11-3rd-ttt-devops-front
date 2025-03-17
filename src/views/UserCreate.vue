@@ -431,7 +431,7 @@ export default {
             nicknameCheckMessage: '',
             showPassword: false,
             showConfirmPassword: false,
-            forbiddenWords: [], // 금지된 단어 목록
+            forbiddenWords: ["admin",], // 금지된 단어 목록
         }
     },
     computed: {
@@ -538,26 +538,20 @@ export default {
             this.isEmailValid = emailPattern.test(this.email);
         },
         async checkEmail() {
-            if (!this.isEmailValid) return;
-            
-            this.isCheckingEmail = true;
+        this.isCheckingEmail = true;
             try {
-                const response = await axios.get(
-                    `${process.env.VUE_APP_API_BASE_URL}/user/checkEmail`,
-                    { params: { email: this.email } }
-                );
-
-                if (response.data.result) {
+                // 이메일 중복 확인 API 호출
+                const response = await checkEmailApi(this.email);
+                if (response.available) {
                     this.isEmailAvailable = true;
-                    this.emailCheckMessage = '사용 가능한 이메일입니다.';
+                    this.emailCheckMessage = ''; // 성공하면 메시지 제거
                 } else {
                     this.isEmailAvailable = false;
                     this.emailCheckMessage = '이미 사용 중인 이메일입니다.';
                 }
             } catch (error) {
-                console.error('이메일 중복 확인 실패:', error);
-                this.isEmailAvailable = false;
-                this.emailCheckMessage = '중복 확인 중 오류가 발생했습니다.';
+                console.error(error);
+                this.emailCheckMessage = '이메일 확인 중 오류가 발생했습니다.';
             } finally {
                 this.isCheckingEmail = false;
             }

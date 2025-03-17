@@ -57,6 +57,7 @@
                       v-model="editData.nickName"
                       label="닉네임"
                       @input="checkChanges"
+                      disabled
                       dense
                       outlined
                       clearable

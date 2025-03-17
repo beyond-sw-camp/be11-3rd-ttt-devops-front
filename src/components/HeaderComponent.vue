@@ -5,7 +5,7 @@
         <v-row align="center" no-gutters>
           <!-- 로고 -->
           <v-col cols="2">
-            <router-link to="/ttt" class="text-decoration-none">
+            <router-link to="/" class="text-decoration-none">
               <h1 class="logo">
                 <span class="highlight">T</span><span class="small-text">ik</span>
                 <span class="highlight">T</span><span class="small-text">ak</span>
@@ -279,7 +279,7 @@ export default {
         
         // 기존 로그아웃 로직
         localStorage.clear();
-        window.location.href = '/ttt';
+        window.location.href = '/';
     },
     async fetchProfileImage() {
       try {

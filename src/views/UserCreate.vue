@@ -61,19 +61,31 @@
                             <!-- 이메일 및 블로그 입력 -->
                             <v-carousel-item>
                                 <div class="d-flex flex-column align-center pt-6">
-                                    <v-text-field
-                                        label="이메일"
-                                        v-model="email"
-                                        prepend-icon="mdi-email"
-                                        variant="outlined"
-                                        :error-messages="!isEmailValid && email ? '올바른 이메일 형식이 아닙니다' : ''"
-                                        class="mb-2"
-                                        density="comfortable"
-                                        bg-color="white"
-                                        style="width: 300px;"
-                                        required
-                                        @input="validateEmail"
-                                    />
+                                    <div class="input-group" style="width: 300px;">
+                                        <v-text-field
+                                            label="이메일"
+                                            v-model="email"
+                                            prepend-icon="mdi-email"
+                                            variant="outlined"
+                                            :error-messages="!isEmailValid && email ? '올바른 이메일 형식이 아닙니다' : emailCheckMessage"
+                                            class="mb-2"
+                                            density="comfortable"
+                                            bg-color="white"
+                                            required
+                                            @input="validateEmail"
+                                        />
+                                        <v-btn
+                                            :loading="isCheckingEmail"
+                                            :disabled="!isEmailValid || isCheckingEmail"
+                                            @click="checkEmail"
+                                            :color="isEmailAvailable ? 'success' : '#6200ea'"
+                                            height="48"
+                                            class="ml-1"
+                                            min-width="70"
+                                        >
+                                            중복확인
+                                        </v-btn>
+                                    </div>
                                     <v-text-field
                                         label="블로그 링크"
                                         v-model="blogLink"
@@ -379,6 +391,10 @@ export default {
         return {
             name:"",
             email:"",
+            isCheckingEmail: false,
+            isEmailAvailable: false,
+            emailCheckMessage: '',
+            isEmailValid: false,
             loginId:"",
             password:"",
             passwordCheck:"",
@@ -410,7 +426,6 @@ export default {
             isCheckingId: false,
             isIdAvailable: false,
             idCheckMessage: '',
-            isEmailValid: false,
             isCheckingNickname: false,
             isNicknameAvailable: false,
             nicknameCheckMessage: '',
@@ -518,6 +533,35 @@ export default {
             }
 
         },
+        validateEmail() {       //이메일 중복 체크
+            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+            this.isEmailValid = emailPattern.test(this.email);
+        },
+        async checkEmail() {
+            if (!this.isEmailValid) return;
+            
+            this.isCheckingEmail = true;
+            try {
+                const response = await axios.get(
+                    `${process.env.VUE_APP_API_BASE_URL}/user/checkEmail`,
+                    { params: { email: this.email } }
+                );
+
+                if (response.data.result) {
+                    this.isEmailAvailable = true;
+                    this.emailCheckMessage = '사용 가능한 이메일입니다.';
+                } else {
+                    this.isEmailAvailable = false;
+                    this.emailCheckMessage = '이미 사용 중인 이메일입니다.';
+                }
+            } catch (error) {
+                console.error('이메일 중복 확인 실패:', error);
+                this.isEmailAvailable = false;
+                this.emailCheckMessage = '중복 확인 중 오류가 발생했습니다.';
+            } finally {
+                this.isCheckingEmail = false;
+            }
+        },
         // 인증번호 요청
         async sendAuthCode() {
             console.log(this.phoneNumber);
@@ -601,11 +645,6 @@ export default {
             } finally {
                 this.isCheckingNickname = false;
             }
-        },
-        validateEmail() {
-            // 이메일 정규식 패턴
-            const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-            this.isEmailValid = emailPattern.test(this.email);
         },
         // ID 중복 확인 리셋
         resetIdCheck() {

@@ -61,7 +61,7 @@
                       outlined
                       clearable
                       prepend-inner-icon="mdi-account"
-                      class="neon-input"
+                      class="readonly-input"
                       rounded
                   ></v-text-field>
                 </v-card-text>

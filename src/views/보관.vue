@@ -1,7 +1,7 @@
 <template>
   <v-container fluid class="page-container">
     <v-row>
-      <!-- 사이드 메뉴 -->
+      <!-- 사이드 메뉴b -->
       <v-col cols="2">
         <div class="category-sidebar">
           <h3 class="sidebar-title">카테고리</h3>

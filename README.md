@@ -109,8 +109,6 @@
 
 ## ⚙️ 풀 오토스케일링
 
----
-
 ### 🚀 파드 & 노드 오토스케일링
 
 **HPA(Horizontal Pod Autoscaler) + Cluster Autoscaler = 풀 오토스케일링**

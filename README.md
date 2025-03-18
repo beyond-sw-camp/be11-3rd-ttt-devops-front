@@ -75,7 +75,7 @@
 <img width="1152" alt="image" src="Hub (1).png">
 
 ## ⚙️ 시스템 아키텍처    
-<img width="1152" alt="image" src=https://github.com/beyond-sw-camp/be11-3rd-4dollarExit-TikTakTalk-FE/blob/main/aws%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.drawio.png>
+<img width="1152" alt="image" src="https://github.com/beyond-sw-camp/be11-3rd-4dollarExit-TikTakTalk-FE/blob/main/aws%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.drawio.png">
 
 ## ⚙️ 풀 오토스케일링
 

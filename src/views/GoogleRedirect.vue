@@ -37,7 +37,7 @@ export default {
                 localStorage.setItem('refreshToken', refreshToken);
                 localStorage.setItem('nickName', nickName);
                 localStorage.setItem('role', role);
-                window.location.href = '/ttt';
+                window.location.href = '';
             }
         },
     },

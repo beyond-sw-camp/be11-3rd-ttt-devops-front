@@ -75,7 +75,7 @@
 <img width="1152" alt="image" src="Hub (1).png">
 
 ## ⚙️ 시스템 아키텍처    
-<img width="1152" alt="image" src="./aws 아키텍처.drawio.png">
+<img width="1152" alt="image" src="./aws_arch.drawio.png">
 
 ## ⚙️ 풀 오토스케일링
 

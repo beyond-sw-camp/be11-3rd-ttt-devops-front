@@ -77,8 +77,21 @@
 ## ⚙️ 시스템 아키텍처    
 <img width="1152" alt="image" src=https://github.com/beyond-sw-camp/be11-3rd-4dollarExit-TikTakTalk-FE/blob/main/aws%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.drawio.png>
 
-## ⚙️ ec2 오토스케일링
+## ⚙️ 풀 오토스케일링
+
+### pod 오토스케일링
+#### pod 증가 확인
+<img width="1152" alt="image" src=https://github.com/beyond-sw-camp/be11-3rd-4dollarExit-TikTakTalk-FE/blob/main/pod%20add.png>
+
+#### pod 감소 확인
+<img width="1152" alt="image" src=https://github.com/beyond-sw-camp/be11-3rd-4dollarExit-TikTakTalk-FE/blob/main/pod%20down.png>
+
+### ec2 오토스케일링
+#### node 증가 확인
 <img width="1152" alt="image" src=https://github.com/beyond-sw-camp/be11-3rd-4dollarExit-TikTakTalk-FE/blob/main/node%20scaleout.png>
+
+#### node 감소 확인
+<img width="1152" alt="image" src=https://github.com/beyond-sw-camp/be11-3rd-4dollarExit-TikTakTalk-FE/blob/main/node%20scalein.png>
 
 ## 🔎 프로젝트 시연
 [프로젝트 시연](https://github.com/beyond-sw-camp/be11-2nd-4dollarExit-TikTakTalk-FE/wiki)

@@ -105,7 +105,7 @@
 2. GitHub Actions는 **Dockerfile을 빌드**하여 애플리케이션 이미지를 생성한 후, 이를 **Amazon ECR (Elastic Container Registry)**에 업로드한다.
 3. 업로드된 최신 이미지를 기반으로 **Kubernetes에서 새로운 파드(Pod)**를 실행하여 백엔드 애플리케이션이 배포된다.
 4. 데이터베이스는 **Amazon RDS**를 사용하며, 백엔드 애플리케이션이 **RDS에 연결되어 데이터를 관리**한다.
-
+<br>
 
 ## ⚙️ 풀 오토스케일링
 

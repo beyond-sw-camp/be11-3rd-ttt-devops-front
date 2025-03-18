@@ -96,9 +96,8 @@
 
 ### ✅ 사용자 접근 흐름
 1. 사용자가 **도메인을 통해 요청**을 보내면, **Route 53**을 통해 라우팅된다.
-2. 요청은 **Application Load Balancer (ALB)**로 전달되며, **Ingress 컨트롤러**를 통해 Kubernetes 클러스터 내 적절한 서비스로 라우팅된다.
-3. Ingress는 요청된 **API 엔드포인트**에 맞는 **Kubernetes 서비스**로 요청을 전달한다.
-4. Kubernetes 서비스는 내부적으로 **적절한 파드(Pod)**로 트래픽을 라우팅하여 최종적으로 백엔드 애플리케이션이 요청을 처리한다.
+2. 요청은 **Application Load Balancer (ALB)**로 전달되며, **Ingress**를 통해 Kubernetes 클러스터 내 적절한 서비스로 라우팅된다.
+3. Kubernetes 서비스는 내부적으로 **적절한 파드(Pod)**로 트래픽을 라우팅하여 최종적으로 백엔드 애플리케이션이 요청을 처리한다.
 
 ### ✅ 개발자 배포 흐름
 1. 개발자가 **소스 코드를 Git에 Push**하면, **GitHub Actions**가 자동 실행된다.

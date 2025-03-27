@@ -1,4 +1,4 @@
-# be11-2nd-4dollarExit-TikTakTalk
+# be11-4th-4dollarExit-TikTakTalk-devops-frontend
 # 학원 커뮤니티 웹 🌐✨
 <p align="middle" style="margin: 0; padding: 0;">
   <img width="200px" src="./src/assets/pic/4dollar.png">
